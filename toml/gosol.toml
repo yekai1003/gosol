@@ -1,0 +1,3 @@
+[eth]
+connstr = "http://localhost:8545"
+keydir = "/Users/yk/ethdev/ethdata/dev/data/keystore"

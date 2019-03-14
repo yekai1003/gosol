@@ -1,7 +1,11 @@
 package main
 
 import (
-	"io"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 type NameType struct {
@@ -16,8 +20,41 @@ type ContractInfo struct {
 	Outputs         []NameType
 	Payable         bool
 	StateMutability string
+	Type            string
 }
 
 func ParseJson(filename string) {
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Panic("faild to open file", filename, err)
+	}
+	data, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Panic("faild to read file", filename, err)
+	}
+	fmt.Println(string(data))
+	var info []ContractInfo
+	//info := make([]ContractInfo, 1)
+	json.Unmarshal(data, &info)
+	fmt.Printf("%+v\n", info[2])
+}
+func ParseDir(dirName string) ([]string, error) {
+	var solFiles []string
+	dirinfo, err := ioutil.ReadDir(dirName)
+	if err != nil {
+		fmt.Println("faild to read file", dirName, err)
+		return nil, err
+	}
+	for _, oneInfo := range dirinfo {
+		strrune := []rune(oneInfo.Name())
+		if !oneInfo.IsDir() && len(strrune) > 3 {
+			strfix := strrune[len(strrune)-3:]
+			if string(strfix) == "sol" {
+				solFiles = append(solFiles, oneInfo.Name())
+			}
+		}
 
+		//fmt.Println(oneInfo.Name(), string(strfix), oneInfo.Size(), oneInfo)
+	}
+	return solFiles, nil
 }
