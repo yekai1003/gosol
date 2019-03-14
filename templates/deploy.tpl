@@ -72,6 +72,7 @@ func MakeAuth(addr, pass, keystorePath string) (*bind.TransactOpts, error) {
 	return auth, err
 }
 
+
 func DeployContract(addr, pass, keystorePath string) (common.Address, error) {
 	auth, err := MakeAuth(addr, pass, keystorePath)
 	if err != nil {
@@ -79,18 +80,10 @@ func DeployContract(addr, pass, keystorePath string) (common.Address, error) {
 		return nil, err
 	}
 	//common.Address, *types.Transaction, *Pdbank, error
-	contractaddr, _, _, err := contracts.DeployPdbank(auth, cli)
+	contractaddr, _, _, err := contracts.{{.ContractCall}}
 	if err != nil {
-		fmt.Println("failed to DeployPdbank", err)
+		fmt.Println("failed to %s",{{.ContratName}}, err)
 		return nil, err
 	}
 	return contractaddr, err
-}
-
-func CallAuthFunc(addr, pass, keystorePath string, params ...interface{}) {
-
-}
-
-func CallNogasFunc(params ...interface{},,,) {
-
 }

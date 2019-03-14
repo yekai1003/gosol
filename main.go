@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gosol/toml"
 )
 
 func main() {
@@ -11,6 +12,8 @@ func main() {
 	solfiles, err := ParseDir("sol")
 	fmt.Println(solfiles, err)
 	for _, solfile := range solfiles {
-		Compiler(solfile, "sol", "contracts")
+		fmt.Println(solfile)
+		//Compiler(solfile, "sol", "contracts")
 	}
+	fmt.Printf("%+v\n", toml.Config.Eth)
 }
