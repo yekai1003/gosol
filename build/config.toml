@@ -1,0 +1,22 @@
+[common]
+connstr = "http://localhost:8545"
+keydir = "/Users/yekai/eth/data/keystore"
+contractAddr = "0x00"
+Codepath  =  "./callsol.go"
+[Deploy]
+func =  "DeployPdbank"
+fromaddr  =  "0x70c53a4c94ccce9ce56effbfcb89b221f986cd41"
+pass  = "123"
+Params =  "DeployPdbank(auth,testclient)"
+[[funcConfs]]
+func =  "deposit"
+funcparams  =  "0x08afca9bc326c5cbdaf3b6162f89089a2840442b"
+value  = 0
+[[funcConfs]]
+func =  "withdraw"
+funcparams  =  "0x00"
+value  = 0
+[[NoGasFuncConfs]]
+func =  "withdraw"
+funcparams  =  "0x00param"
+retparams  =  "0x00ret"

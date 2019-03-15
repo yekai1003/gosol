@@ -1,29 +1,33 @@
 package templates
 
-const Deploy_Contract_tmpl = `package build
+const Main_tmpl = `package main
 
 import (
 	"fmt"
 	"log"
+	"math/big"
+	"os"
 
 	"gosol/contracts"
+	"gosol/toml"
 	"ioutil"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-var buildclient *ethclient.Client
+var testclient *ethclient.Client
 
 func init() {
-	cli, err := CreateCli("http://localhost:8485")
+	cli, err := CreateCli("{{.Connstr}}")
 	if err != nil {
 		log.Panic("failed to connect to eth", err)
 	}
-	buildclient = cli
+	testclient = cli
 }
 
 func GetFileName(address, dirname string) (string, error) {
@@ -54,7 +58,8 @@ func CreateCli(connstr string) (*ethclient.Client, error) {
 }
 
 //设置签名
-func MakeAuth(addr, pass, keystorePath string) (*bind.TransactOpts, error) {
+func MakeAuth(addr, pass string) (*bind.TransactOpts, error) {
+	keystorePath  :=  "{{.Keydir}}"
 	fileName, err := GetFileName(string([]rune(addr)[2:]), keystorePath)
 	if err != nil {
 		fmt.Println("failed to GetFileName", err)
@@ -73,19 +78,57 @@ func MakeAuth(addr, pass, keystorePath string) (*bind.TransactOpts, error) {
 	}
 	return auth, err
 }
+`
 
+const Deploy_sol_tmpl = `func {{.Func}}() (common.Address, error) {
+	auth, err := MakeAuth("{{.FromAddr}}", "{{.Pass}}")
+	if err != nil {
+		fmt.Println("failed to makeAuth", err)
+		return nil, err
+	}
 
-func DeployContract(addr, pass, keystorePath string) (common.Address, error) {
+	//common.Address, *types.Transaction, *Pdbank, error
+	contractaddr, _, _, err := contracts.{{.Params}}
+	if err != nil {
+		fmt.Println("failed to deloy ",err)
+		return nil, err
+	}
+	return contractaddr, err
+}
+func Run() {
+	fmt.Println("deploy^^^^")
+	if os.Args[1] == "deploy" {
+		{{.Func}}()
+	}
+}`
+
+const Call_func_tmpl = `func CallAuthFunc(addr, pass, keystorePath string) (*types.Transaction, error) {
+
+	instance, err := contracts.NewPdbank(common.HexToAddress(toml.Config.ContractAddr), testclient)
+	if err != nil {
+		fmt.Println("failed to get contract instance", err)
+		return nil, err
+	}
 	auth, err := MakeAuth(addr, pass, keystorePath)
 	if err != nil {
 		fmt.Println("failed to makeAuth", err)
 		return nil, err
 	}
-	//common.Address, *types.Transaction, *Pdbank, error
-	contractaddr, _, _, err := contracts.{{.ContractCall}}
+	auth.Value = 10000000000
+	return instance.Deposit(auth)
+}`
+
+const Call_nogas_func_tmpl = `func CallNogasFunc(addr string) (*big.Int, error) {
+	instance, err := contracts.NewPdbank(common.HexToAddress(toml.Config.ContractAddr), testclient)
 	if err != nil {
-		fmt.Println("failed to %s",{{.ContratName}}, err)
+		fmt.Println("failed to get contract instance", err)
 		return nil, err
 	}
-	return contractaddr, err
+	data, err := instance.Balances(common.HexToAddress(addr))
+	if err != nil {
+		fmt.Println("failed to get Balances", err)
+		return nil, err
+	}
+	fmt.Println(data, err)
+	return data, err
 }`

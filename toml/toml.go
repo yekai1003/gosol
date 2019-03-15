@@ -24,8 +24,9 @@ type CommonConfig struct {
 	LogFormat string
 }
 type EthConfig struct {
-	Connstr string
-	Keydir  string
+	Connstr      string
+	Keydir       string
+	ContractAddr string
 }
 
 func usage() {

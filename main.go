@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gosol/toml"
+	_ "gosol/toml"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	fmt.Println(solfiles, err)
 	for _, solfile := range solfiles {
 		fmt.Println(solfile)
-		//Compiler(solfile, "sol", "contracts")
+		Compiler(solfile, "sol", "contracts")
 	}
-	fmt.Printf("%+v\n", toml.Config.Eth)
+	//fmt.Printf("%+v\n", toml.Config.Eth)
 }
