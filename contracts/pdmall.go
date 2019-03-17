@@ -7,25 +7,39 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
+)
+
+// Reference imports to suppress errors if they are not otherwise used.
+var (
+	_ = big.NewInt
+	_ = strings.NewReader
+	_ = ethereum.NotFound
+	_ = abi.U256
+	_ = bind.Bind
+	_ = common.Big1
+	_ = types.BloomLookup
+	_ = event.NewSubscription
 )
 
 // PdbankABI is the input ABI used to generate the binding from.
-const PdbankABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"totalAmount\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"deposit\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]"
+const PdbankABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"totalAmount\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"bankName\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balances\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"deposit\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_bankName\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]"
 
 // PdbankBin is the compiled bytecode used for deploying new contracts.
-const PdbankBin = `0x608060405234801561001057600080fd5b50600080546001600160a01b031916331781556002556101db806100356000396000f3fe60806040526004361061004a5760003560e01c80631a39d8ef1461004f57806327e235e3146100765780632e1a7d4d146100a95780638da5cb5b146100c8578063d0e30db0146100f9575b600080fd5b34801561005b57600080fd5b50610064610101565b60408051918252519081900360200190f35b34801561008257600080fd5b506100646004803603602081101561009957600080fd5b50356001600160a01b0316610107565b6100c6600480360360208110156100bf57600080fd5b5035610119565b005b3480156100d457600080fd5b506100dd61017d565b604080516001600160a01b039092168252519081900360200190f35b6100c661018c565b60025481565b60016020526000908152604090205481565b3360009081526001602052604090205481101561017a5733600081815260016020526040808220805485900390555183156108fc0291849190818181858888f1935050505015801561016f573d6000803e3d6000fd5b506002805482900390555b50565b6000546001600160a01b031681565b60028054349081019091553360009081526001602052604090208054909101905556fea165627a7a72305820731c2a8b00f69921a1d9e2bfddbcf0b6b9e78887870fc0305f2f66d13d09a6860029`
+const PdbankBin = `0x608060405234801561001057600080fd5b506040516104533803806104538339810180604052602081101561003357600080fd5b81019080805164010000000081111561004b57600080fd5b8201602081018481111561005e57600080fd5b815164010000000081118282018710171561007857600080fd5b5050600080546001600160a01b0319163317905580519093506100a492506003915060208401906100ab565b5050610146565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106100ec57805160ff1916838001178555610119565b82800160010185558215610119579182015b828111156101195782518255916020019190600101906100fe565b50610125929150610129565b5090565b61014391905b80821115610125576000815560010161012f565b90565b6102fe806101556000396000f3fe6080604052600436106100555760003560e01c80631a39d8ef1461005a57806327d358011461008157806327e235e31461010b5780632e1a7d4d1461013e5780638da5cb5b1461015d578063d0e30db01461018e575b600080fd5b34801561006657600080fd5b5061006f610196565b60408051918252519081900360200190f35b34801561008d57600080fd5b5061009661019c565b6040805160208082528351818301528351919283929083019185019080838360005b838110156100d05781810151838201526020016100b8565b50505050905090810190601f1680156100fd5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b34801561011757600080fd5b5061006f6004803603602081101561012e57600080fd5b50356001600160a01b031661022a565b61015b6004803603602081101561015457600080fd5b503561023c565b005b34801561016957600080fd5b506101726102a0565b604080516001600160a01b039092168252519081900360200190f35b61015b6102af565b60025481565b6003805460408051602060026001851615610100026000190190941693909304601f810184900484028201840190925281815292918301828280156102225780601f106101f757610100808354040283529160200191610222565b820191906000526020600020905b81548152906001019060200180831161020557829003601f168201915b505050505081565b60016020526000908152604090205481565b3360009081526001602052604090205481101561029d5733600081815260016020526040808220805485900390555183156108fc0291849190818181858888f19350505050158015610292573d6000803e3d6000fd5b506002805482900390555b50565b6000546001600160a01b031681565b60028054349081019091553360009081526001602052604090208054909101905556fea165627a7a723058205c893558e89f42d136f6db742c86166ff2481a143ab81f4bfda748156880dc570029`
 
 // DeployPdbank deploys a new Ethereum contract, binding an instance of Pdbank to it.
-func DeployPdbank(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *Pdbank, error) {
+func DeployPdbank(auth *bind.TransactOpts, backend bind.ContractBackend, _bankName string) (common.Address, *types.Transaction, *Pdbank, error) {
 	parsed, err := abi.JSON(strings.NewReader(PdbankABI))
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(PdbankBin), backend)
+	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(PdbankBin), backend, _bankName)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
@@ -176,7 +190,7 @@ func (_Pdbank *PdbankTransactorRaw) Transact(opts *bind.TransactOpts, method str
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Pdbank *PdbankCaller) Balances(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -188,16 +202,42 @@ func (_Pdbank *PdbankCaller) Balances(opts *bind.CallOpts, arg0 common.Address) 
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Pdbank *PdbankSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _Pdbank.Contract.Balances(&_Pdbank.CallOpts, arg0)
 }
 
 // Balances is a free data retrieval call binding the contract method 0x27e235e3.
 //
-// Solidity: function balances( address) constant returns(uint256)
+// Solidity: function balances(address ) constant returns(uint256)
 func (_Pdbank *PdbankCallerSession) Balances(arg0 common.Address) (*big.Int, error) {
 	return _Pdbank.Contract.Balances(&_Pdbank.CallOpts, arg0)
+}
+
+// BankName is a free data retrieval call binding the contract method 0x27d35801.
+//
+// Solidity: function bankName() constant returns(string)
+func (_Pdbank *PdbankCaller) BankName(opts *bind.CallOpts) (string, error) {
+	var (
+		ret0 = new(string)
+	)
+	out := ret0
+	err := _Pdbank.contract.Call(opts, out, "bankName")
+	return *ret0, err
+}
+
+// BankName is a free data retrieval call binding the contract method 0x27d35801.
+//
+// Solidity: function bankName() constant returns(string)
+func (_Pdbank *PdbankSession) BankName() (string, error) {
+	return _Pdbank.Contract.BankName(&_Pdbank.CallOpts)
+}
+
+// BankName is a free data retrieval call binding the contract method 0x27d35801.
+//
+// Solidity: function bankName() constant returns(string)
+func (_Pdbank *PdbankCallerSession) BankName() (string, error) {
+	return _Pdbank.Contract.BankName(&_Pdbank.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -275,21 +315,21 @@ func (_Pdbank *PdbankTransactorSession) Deposit() (*types.Transaction, error) {
 
 // Withdraw is a paid mutator transaction binding the contract method 0x2e1a7d4d.
 //
-// Solidity: function withdraw(_amount uint256) returns()
+// Solidity: function withdraw(uint256 _amount) returns()
 func (_Pdbank *PdbankTransactor) Withdraw(opts *bind.TransactOpts, _amount *big.Int) (*types.Transaction, error) {
 	return _Pdbank.contract.Transact(opts, "withdraw", _amount)
 }
 
 // Withdraw is a paid mutator transaction binding the contract method 0x2e1a7d4d.
 //
-// Solidity: function withdraw(_amount uint256) returns()
+// Solidity: function withdraw(uint256 _amount) returns()
 func (_Pdbank *PdbankSession) Withdraw(_amount *big.Int) (*types.Transaction, error) {
 	return _Pdbank.Contract.Withdraw(&_Pdbank.TransactOpts, _amount)
 }
 
 // Withdraw is a paid mutator transaction binding the contract method 0x2e1a7d4d.
 //
-// Solidity: function withdraw(_amount uint256) returns()
+// Solidity: function withdraw(uint256 _amount) returns()
 func (_Pdbank *PdbankTransactorSession) Withdraw(_amount *big.Int) (*types.Transaction, error) {
 	return _Pdbank.Contract.Withdraw(&_Pdbank.TransactOpts, _amount)
 }

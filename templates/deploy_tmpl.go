@@ -5,19 +5,17 @@ const Main_tmpl = `package main
 import (
 	"fmt"
 	"log"
-	"math/big"
 	"os"
 
 	"gosol/contracts"
-	"gosol/toml"
-	"ioutil"
+	"io/ioutil"
+	"math/big"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/rpc"
 )
 
 var testclient *ethclient.Client
@@ -84,51 +82,96 @@ const Deploy_sol_tmpl = `func {{.Func}}() (common.Address, error) {
 	auth, err := MakeAuth("{{.FromAddr}}", "{{.Pass}}")
 	if err != nil {
 		fmt.Println("failed to makeAuth", err)
-		return nil, err
+		return common.HexToAddress(""), err
 	}
 
 	//common.Address, *types.Transaction, *Pdbank, error
-	contractaddr, _, _, err := contracts.{{.Params}}
+	contractaddr, ts, _, err := contracts.{{.Params}}
 	if err != nil {
 		fmt.Println("failed to deloy ",err)
-		return nil, err
+		return common.HexToAddress(""), err
 	}
+	fmt.Println(ts.ChainId(), ts.Hash().Hex(), ts.Nonce())
+	fmt.Println(contractaddr.Hex())
 	return contractaddr, err
 }
-func Run() {
-	fmt.Println("deploy^^^^")
-	if os.Args[1] == "deploy" {
-		{{.Func}}()
-	}
-}`
 
-const Call_func_tmpl = `func CallAuthFunc(addr, pass, keystorePath string) (*types.Transaction, error) {
+`
 
-	instance, err := contracts.NewPdbank(common.HexToAddress(toml.Config.ContractAddr), testclient)
+const Call_func_tmpl = `func Call{{.Func}}(addr, pass string) (*types.Transaction, error) {
+
+	instance, err := contracts.{{.IncontractName}}(common.HexToAddress(Config.Common.ContractAddr), testclient)
 	if err != nil {
 		fmt.Println("failed to get contract instance", err)
 		return nil, err
 	}
-	auth, err := MakeAuth(addr, pass, keystorePath)
+	auth, err := MakeAuth(addr, pass)
 	if err != nil {
 		fmt.Println("failed to makeAuth", err)
 		return nil, err
 	}
-	auth.Value = 10000000000
-	return instance.Deposit(auth)
-}`
+	auth.Value = big.NewInt({{.Value}})
+	ts,err := instance.{{.Funcparams}}
+	if err != nil {
+		fmt.Println("failed to call ", err)
+		return nil, err
+	}
+	fmt.Println(ts.ChainId(), ts.Hash().Hex(), ts.Nonce())
+	return ts , err
+}
 
-const Call_nogas_func_tmpl = `func CallNogasFunc(addr string) (*big.Int, error) {
-	instance, err := contracts.NewPdbank(common.HexToAddress(toml.Config.ContractAddr), testclient)
+`
+
+const Call_nogas_func_tmpl = `func Call{{.Func}}() (error) {
+	instance, err := contracts.{{.IncontractName}}(common.HexToAddress(Config.Common.ContractAddr), testclient)
 	if err != nil {
 		fmt.Println("failed to get contract instance", err)
-		return nil, err
+		return err
 	}
-	data, err := instance.Balances(common.HexToAddress(addr))
+	{{.RetParams}} := instance.{{.Funcparams}}
 	if err != nil {
 		fmt.Println("failed to get Balances", err)
-		return nil, err
+		return err
 	}
-	fmt.Println(data, err)
-	return data, err
-}`
+	fmt.Println({{.RetParams}})
+	return nil
+}
+
+`
+
+const Test_func_tmpl = `
+package main
+
+import (
+	"fmt"
+	"os"
+)
+
+func Usage() {
+	fmt.Printf("1 - build   :%s  1\n", os.Args[0])
+	fmt.Printf("2 - deploy  :%s  2\n", os.Args[0])
+	num := 3
+	for _, v := range Config.FuncConfs {
+		fmt.Printf("%d - test %s:%s  %d\n", num, v.Func, os.Args[0], num)
+		num++
+	}
+	for _, v := range Config.NoGasFuncConfs {
+		fmt.Printf("%d - test %s:%s  %d\n", num, v.Func, os.Args[0], num)
+		num++
+	}
+}
+`
+
+const Test_func_run_tmpl = `
+func Run() {
+	if os.Args[1] == "2" {
+		%s()
+	} `
+
+const Test_func_run_tmpl2 = `else if os.Args[1] == "%d" {
+		Call%s("%s", "%s")
+	} `
+
+const Test_func_run_tmpl3 = `else if os.Args[1] == "%d" {
+		Call%s()
+	} `

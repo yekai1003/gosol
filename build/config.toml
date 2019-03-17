@@ -1,22 +1,34 @@
 [common]
 connstr = "http://localhost:8545"
 keydir = "/Users/yekai/eth/data/keystore"
-contractAddr = "0x00"
+contractAddr = "0x47FA7260700fFB24ADADf93F9DDa534EfFc2dc13"
 Codepath  =  "./callsol.go"
+TestCodepath  =  "./testFunc.go"
+
 [Deploy]
 func =  "DeployPdbank"
 fromaddr  =  "0x70c53a4c94ccce9ce56effbfcb89b221f986cd41"
 pass  = "123"
-Params =  "DeployPdbank(auth,testclient)"
+Params =  "DeployPdbank(auth,testclient,\"pdj\")"
+
 [[funcConfs]]
-func =  "deposit"
-funcparams  =  "0x08afca9bc326c5cbdaf3b6162f89089a2840442b"
-value  = 0
+func =  "Deposit"
+IncontractName = "NewPdbank"
+value  = 1000000000
+funcparams  =  "Deposit(auth)"
 [[funcConfs]]
-func =  "withdraw"
-funcparams  =  "0x00"
+func =  "Withdraw"
+incontractname = "NewPdbank"
 value  = 0
+funcparams  =  "Withdraw(auth, big.NewInt(20000))"
+
 [[NoGasFuncConfs]]
-func =  "withdraw"
-funcparams  =  "0x00param"
-retparams  =  "0x00ret"
+func =  "BankName"
+incontractname = "NewPdbank"
+funcparams  =  "BankName(nil)"
+retparams  =  "name , err"
+[[NoGasFuncConfs]]
+func =  "Balances"
+incontractname = "NewPdbank"
+funcparams  =  "Balances(nil, common.HexToAddress(\"0x70c53a4c94ccce9ce56effbfcb89b221f986cd41\"))"
+retparams  =  "data , err"

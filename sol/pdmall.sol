@@ -4,9 +4,10 @@ contract pdbank {
     address public  owner;
     mapping(address=>uint256) public balances;
     uint256 public totalAmount;
-    constructor() public  {
+    string public bankName;
+    constructor(string memory _bankName) public  {
         owner = msg.sender;
-        totalAmount = 0;
+        bankName = _bankName;
     }
     function deposit() public payable {
         //do nothing

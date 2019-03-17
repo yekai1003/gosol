@@ -24,6 +24,7 @@ type CommonConfig struct {
 	Keydir       string
 	ContractAddr string
 	Codepath     string
+	TestCodepath string
 }
 type DeployConfig struct {
 	Func     string
@@ -32,14 +33,16 @@ type DeployConfig struct {
 	Params   string
 }
 type FuncConfig struct {
-	Func       string
-	Funcparams string
-	Value      int
+	Func           string
+	IncontractName string
+	Value          int
+	Funcparams     string
 }
 type NoGasFuncConfig struct {
-	Func       string
-	Funcparams string
-	RetParams  string
+	Func           string
+	IncontractName string
+	RetParams      string
+	Funcparams     string
 }
 
 var Config *ServerConfig //引用配置文件结构
