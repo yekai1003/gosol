@@ -2,18 +2,27 @@ package main
 
 import (
 	"fmt"
-	_ "gosol/toml"
+	"gosol/templates"
+	"os"
 )
 
-func main() {
-	fmt.Println("hello world")
-	//ParseJson("pdmall.abi")
+func help() {
+	fmt.Println("./gosol comp  #complier solidity contract")
+	fmt.Println("./gosol build  #build test code")
+}
 
-	solfiles, err := ParseDir("sol")
-	fmt.Println(solfiles, err)
-	for _, solfile := range solfiles {
-		fmt.Println(solfile)
-		Compiler(solfile, "sol", "contracts")
+func main() {
+	if len(os.Args) < 2 {
+		help()
+		os.Exit(0)
 	}
-	//fmt.Printf("%+v\n", toml.Config.Eth)
+	if os.Args[1] == "comp" {
+		ParseRun()
+	} else if os.Args[1] == "build" {
+		//
+		templates.BuildRun()
+	} else {
+		help()
+		os.Exit(0)
+	}
 }

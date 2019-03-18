@@ -58,3 +58,21 @@ func ParseDir(dirName string) ([]string, error) {
 	}
 	return solFiles, nil
 }
+
+func ParseRun() {
+	solfiles, err := ParseDir("sol")
+	fmt.Println(solfiles, err)
+	for _, solfile := range solfiles {
+		fmt.Println(solfile)
+		codeName, err := Compiler(solfile, "sol", "contracts")
+		if err != nil {
+			fmt.Println("failed to complie code", err)
+			return
+		}
+		err = BuildAbi(codeName)
+		if err != nil {
+			fmt.Println("failed to build abi", err)
+			return
+		}
+	}
+}

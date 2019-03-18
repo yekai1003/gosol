@@ -1,0 +1,16 @@
+[common]
+connstr = "http://localhost:8545"  #以太坊地址
+keydir = "/Users/yekai/eth/data/keystore"  #私钥所在目录
+contractaddr = "0x" #合约地址，部署后拿到
+buildpath = "build2" #合约地址，部署后拿到
+Codepath  =  "callsol.go"  #生成目标代码路径
+TestCodepath  =  "testFunc.go" #生成调用时的目标代码路径
+TestConfigpath  =  "config.toml" #生成调用时的目标代码路径
+
+
+[Deploy]
+contractname =  "Pdbank"  #部署合约函数，合约编译成go语言后，可以得到
+fromaddr  =  "0x70c53a4c94ccce9ce56effbfcb89b221f986cd41" #部署用的账户地址，需要消耗gas
+pass  = "123"  #账户地址对应的密码
+Params =  "DeployPdbank(auth,testclient,\"pdj\")"  #部署时的调用方法，这是函数调用时的参数，auth代表签名，testclient代表连接，之后的参数根据构造函数决定
+AbiFile =  "contracts/pdbank.abi"  #编译后ABI文件所在路径

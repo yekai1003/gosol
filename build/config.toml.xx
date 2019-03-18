@@ -13,22 +13,22 @@ Params =  "DeployPdbank(auth,testclient,\"pdj\")"
 
 [[funcConfs]]
 func =  "Deposit"
-IncontractName = "NewPdbank"
+contractName = "NewPdbank"
 value  = 1000000000
 funcparams  =  "Deposit(auth)"
 [[funcConfs]]
 func =  "Withdraw"
-incontractname = "NewPdbank"
+contractname = "NewPdbank"
 value  = 0
 funcparams  =  "Withdraw(auth, big.NewInt(20000))"
 
 [[NoGasFuncConfs]]
 func =  "BankName"
-incontractname = "NewPdbank"
+contractname = "NewPdbank"
 funcparams  =  "BankName(nil)"
 retparams  =  "name , err"
 [[NoGasFuncConfs]]
 func =  "Balances"
-incontractname = "NewPdbank"
+contractname = "NewPdbank"
 funcparams  =  "Balances(nil, common.HexToAddress(\"0x70c53a4c94ccce9ce56effbfcb89b221f986cd41\"))"
 retparams  =  "data , err"

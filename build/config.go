@@ -31,18 +31,20 @@ type DeployConfig struct {
 	FromAddr string
 	Pass     string
 	Params   string
+	TestAddr string
+	TestPass string
 }
 type FuncConfig struct {
-	Func           string
-	IncontractName string
-	Value          int
-	Funcparams     string
+	Func         string
+	ContractName string
+	Value        int
+	Funcparams   string
 }
 type NoGasFuncConfig struct {
-	Func           string
-	IncontractName string
-	RetParams      string
-	Funcparams     string
+	Func         string
+	ContractName string
+	RetParams    string
+	Funcparams   string
 }
 
 var Config *ServerConfig //引用配置文件结构
