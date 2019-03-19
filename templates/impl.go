@@ -95,7 +95,7 @@ func ImplRunCode() {
 	funconfData.Constructor = "New" + Config.Deploy.ContractName
 	strFuncInit := ""
 	for _, v := range abis {
-		fmt.Println(v)
+		//fmt.Println(v)
 		if v.Type == "constructor" {
 			//获取部署函数所要的参数
 			if len(v.Inputs) > 0 {
@@ -213,7 +213,7 @@ func ImplRunCode() {
 		fmt.Println("failed to create  template tmpl_deploy:", err)
 		return
 	}
-	fmt.Println("\n-------------\n", Config.Deploy, "\n-------------")
+	//fmt.Println("\n-------------\n", Config.Deploy, "\n-------------")
 
 	err = tmpl_deploy.Execute(outfile, Config.Deploy)
 	if err != nil {
@@ -288,115 +288,6 @@ func ImplConfigCode() {
 		return
 	}
 	fmt.Println("deploy config ok......")
-	return
-
-	//接下来需要读取ABI文件内容
-	// data, err := readAbiFile(Config.Deploy.AbiFile)
-	// if err != nil {
-	// 	fmt.Println("failed to read abi file ", err)
-	// 	return
-	// }
-	// var abis []ContractAbi
-
-	// //fmt.Println(data)
-
-	// err = json.Unmarshal([]byte(data), &abis)
-	// if err != nil {
-	// 	fmt.Println("failed to unmarshal json", err)
-	// 	return
-	// }
-	// //fmt.Println(abis, err)
-	// //实例化数据
-	// func_config_tmpl, err := template.New("func").Parse(Config_func_tmpl)
-	// if err != nil {
-	// 	fmt.Println("failed to create  template:", err)
-	// 	return
-	// }
-	// nogasfunc_config_tmpl, err := template.New("func2").Parse(Config_NoGasfunc_tmpl)
-	// if err != nil {
-	// 	fmt.Println("failed to create  template:", err)
-	// 	return
-	// }
-	// var funconfData FuncConfigData
-	// funconfData.Constructor = "New" + Config.Deploy.ContractName
-	// //fmt.Println("funconfData====", funconfData)
-
-	// for _, v := range abis {
-	// 	fmt.Println(v)
-	// 	if len(v.Outputs) > 0 {
-	// 		//no gas func
-	// 		funconfData.FuncName = Capitalize(v.Name)
-	// 		fmt.Println(funconfData.FuncName, "no gas ")
-	// 		num := 0
-	// 		retParams := ""
-	// 		for _, _ = range v.Outputs {
-	// 			str := fmt.Sprintf("data%d,", num)
-	// 			num++
-	// 			retParams += str
-	// 		}
-	// 		retParams += "err"
-	// 		funconfData.RetFunc = retParams
-	// 		if len(v.Inputs) > 0 {
-	// 			//有输入参数
-	// 			funconfData.CallFunc = funconfData.FuncName + "(nil"
-	// 			for _, vv := range v.Inputs {
-	// 				if vv.Type == "address" {
-	// 					//common.HexToAddress
-	// 					funconfData.CallFunc += ",common.HexToAddress(Config.Deploy.TestAddr)"
-	// 				} else if strings.Index("uint", vv.Type) > 0 {
-	// 					funconfData.CallFunc += ",big.NewInt(10000)"
-	// 				} else if vv.Type == "string" {
-	// 					funconfData.CallFunc += ",\"testXXX\""
-	// 				}
-
-	// 			}
-	// 			funconfData.CallFunc += ")"
-
-	// 		} else {
-	// 			funconfData.CallFunc = funconfData.FuncName + "(nil)"
-	// 		}
-
-	// 		err = nogasfunc_config_tmpl.Execute(outfile, funconfData)
-	// 		if err != nil {
-	// 			fmt.Println("failed to exec tmpl", err)
-	// 			break
-	// 		}
-	// 		//fmt.Println(funconfData)
-	// 	} else {
-	// 		// gas func
-	// 		funconfData.FuncName = Capitalize(v.Name)
-	// 		//fmt.Println(funconfData.FuncName, "have gas ")
-	// 		//funconfData.Constructor = "New" + Config.Deploy.ContractName
-	// 		if len(v.Inputs) > 0 {
-	// 			//有输入参数
-	// 			funconfData.CallFunc = funconfData.FuncName + "(auth"
-	// 			for _, vv := range v.Inputs {
-	// 				if vv.Type == "address" {
-	// 					//common.HexToAddress
-	// 					funconfData.CallFunc += ",common.HexToAddress(Config.Deploy.TestAddr)"
-	// 				} else if strings.Index("uint", vv.Type) > 0 {
-	// 					funconfData.CallFunc += ",big.NewInt(10000)"
-	// 				} else if vv.Type == "string" {
-	// 					funconfData.CallFunc += ",\"testXXX\""
-	// 				}
-
-	// 			}
-	// 			funconfData.CallFunc += ")"
-
-	// 		} else {
-	// 			funconfData.CallFunc = funconfData.FuncName + "(auth)"
-	// 		}
-	// 		//fmt.Println(funconfData)
-	// 		err = func_config_tmpl.Execute(outfile, funconfData)
-	// 		if err != nil {
-	// 			fmt.Println("failed to exec tmpl", err)
-	// 			break
-	// 		}
-	// 	}
-
-	// }
-
-	fmt.Println("ImplConfigCode config.toml ok......")
 }
 
 func readAbiFile(Abifile string) (string, error) {
