@@ -28,9 +28,9 @@ type CommonConfig struct {
 }
 type DeployConfig struct {
 	ContractName string
+	CallFunc     string
 	FromAddr     string
 	Pass         string
-	Params       string
 	AbiFile      string
 }
 

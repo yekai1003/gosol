@@ -78,7 +78,8 @@ func MakeAuth(addr, pass string) (*bind.TransactOpts, error) {
 }
 `
 
-const Deploy_sol_tmpl = `func {{.Func}}() (common.Address, error) {
+const Deploy_sol_tmpl = `
+func Deploy{{.ContractName}}() (common.Address, error) {
 	auth, err := MakeAuth("{{.FromAddr}}", "{{.Pass}}")
 	if err != nil {
 		fmt.Println("failed to makeAuth", err)
@@ -86,7 +87,7 @@ const Deploy_sol_tmpl = `func {{.Func}}() (common.Address, error) {
 	}
 
 	//common.Address, *types.Transaction, *Pdbank, error
-	contractaddr, ts, _, err := contracts.{{.Params}}
+	contractaddr, ts, _, err := contracts.{{.CallFunc}}
 	if err != nil {
 		fmt.Println("failed to deloy ",err)
 		return common.HexToAddress(""), err
@@ -98,9 +99,10 @@ const Deploy_sol_tmpl = `func {{.Func}}() (common.Address, error) {
 
 `
 
-const Call_func_tmpl = `func Call{{.Func}}(addr, pass string) (*types.Transaction, error) {
+const Call_func_tmpl = `
+func Call{{.FuncName}}(addr, pass string) (*types.Transaction, error) {
 
-	instance, err := contracts.{{.IncontractName}}(common.HexToAddress(Config.Common.ContractAddr), testclient)
+	instance, err := contracts.{{.Constructor}}(common.HexToAddress(Config.Common.ContractAddr), testclient)
 	if err != nil {
 		fmt.Println("failed to get contract instance", err)
 		return nil, err
@@ -110,8 +112,8 @@ const Call_func_tmpl = `func Call{{.Func}}(addr, pass string) (*types.Transactio
 		fmt.Println("failed to makeAuth", err)
 		return nil, err
 	}
-	auth.Value = big.NewInt({{.Value}})
-	ts,err := instance.{{.Funcparams}}
+	auth.Value = big.NewInt(0)
+	ts,err := instance.{{.CallFunc}}
 	if err != nil {
 		fmt.Println("failed to call ", err)
 		return nil, err
@@ -122,18 +124,19 @@ const Call_func_tmpl = `func Call{{.Func}}(addr, pass string) (*types.Transactio
 
 `
 
-const Call_nogas_func_tmpl = `func Call{{.Func}}() (error) {
-	instance, err := contracts.{{.IncontractName}}(common.HexToAddress(Config.Common.ContractAddr), testclient)
+const Call_nogas_func_tmpl = `
+func Call{{.FuncName}}() (error) {
+	instance, err := contracts.{{.Constructor}}(common.HexToAddress(Config.Common.ContractAddr), testclient)
 	if err != nil {
 		fmt.Println("failed to get contract instance", err)
 		return err
 	}
-	{{.RetParams}} := instance.{{.Funcparams}}
+	{{.RetFunc}} := instance.{{.CallFunc}}
 	if err != nil {
 		fmt.Println("failed to get Balances", err)
 		return err
 	}
-	fmt.Println({{.RetParams}})
+	fmt.Println({{.RetFunc}})
 	return nil
 }
 
@@ -147,29 +150,45 @@ import (
 	"os"
 )
 
+type FuncsList struct {
+	FuncName string
+	Num      int
+}
+
 func Usage() {
-	fmt.Printf("1 - build   :%s  1\n", os.Args[0])
+	fmt.Printf("1 - help   :%s  1\n", os.Args[0])
 	fmt.Printf("2 - deploy  :%s  2\n", os.Args[0])
 	num := 3
-	for _, v := range Config.FuncConfs {
-		fmt.Printf("%d - test %s:%s  %d\n", num, v.Func, os.Args[0], num)
-		num++
-	}
-	for _, v := range Config.NoGasFuncConfs {
-		fmt.Printf("%d - test %s:%s  %d\n", num, v.Func, os.Args[0], num)
+	for _, v := range datas {
+		fmt.Printf("%d - test %s:%s  %d\n", num, v.FuncName, os.Args[0], num)
 		num++
 	}
 }
 `
+const Test_funcinit_tmpl = `
+var datas = []FuncsList{
+%s
+}
+
+
+func main() {
+	Run()
+}
+
+`
 
 const Test_func_run_tmpl = `
 func Run() {
+	if len(os.Args) < 2 || os.Args[1] == "1" {
+		Usage()
+		os.Exit(0)
+	}
 	if os.Args[1] == "2" {
 		%s()
 	} `
 
 const Test_func_run_tmpl2 = `else if os.Args[1] == "%d" {
-		Call%s("%s", "%s")
+		Call%s(%s, %s)
 	} `
 
 const Test_func_run_tmpl3 = `else if os.Args[1] == "%d" {

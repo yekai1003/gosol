@@ -1,0 +1,16 @@
+
+[common]
+connstr = "http://localhost:8545"         #以太坊连接地址
+keydir = "/Users/yekai/eth/data/keystore"           #以太坊私钥目录
+ContractAddr = "0xe98a031548fc8e8580e1d2d67637045a82b5250c"  #合约地址，部署后得到
+Buildpath  =  "build"   #编译目标目录，默认为build
+Codepath  =  "callsol.go"     #编译后的代码文件名
+TestCodepath  =  "testFunc.go"  #自动生成的测试用代码文件名 
+TestConfigpath  =  "config.toml" #自动生成的配置文件名
+
+[Deploy]
+func =  "DeployPdbank"  #部署函数入口
+fromaddr  =  "0x70c53a4c94ccce9ce56effbfcb89b221f986cd41"   #部署用账户
+pass  = "123"            #部署账户密码
+TestAddr = "0x70c53a4c94ccce9ce56effbfcb89b221f986cd41"     #测试用账户
+TestPass = "123"     #测试用账户密码

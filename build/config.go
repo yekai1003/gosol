@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -13,10 +14,8 @@ var (
 )
 
 type ServerConfig struct {
-	Common         CommonConfig
-	Deploy         DeployConfig
-	FuncConfs      []FuncConfig
-	NoGasFuncConfs []NoGasFuncConfig
+	Common CommonConfig
+	Deploy DeployConfig
 }
 
 type CommonConfig struct {
@@ -30,28 +29,16 @@ type DeployConfig struct {
 	Func     string
 	FromAddr string
 	Pass     string
-	Params   string
 	TestAddr string
 	TestPass string
-}
-type FuncConfig struct {
-	Func         string
-	ContractName string
-	Value        int
-	Funcparams   string
-}
-type NoGasFuncConfig struct {
-	Func         string
-	ContractName string
-	RetParams    string
-	Funcparams   string
 }
 
 var Config *ServerConfig //引用配置文件结构
 
 func init() {
-	fmt.Println("call config.init")
+	fmt.Println("call build config.init")
 	Config = GetConfig()
+	fmt.Println("call build config.init ok")
 }
 
 func GetConfig() (config *ServerConfig) {
